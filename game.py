@@ -17,6 +17,9 @@ WHITE = (255, 255, 255)
 clock = pygame.time.Clock()
 obstacles = list() 
 stars = list()
+MENU, GAMEPLAY, PAUSE, GAMEOVER = range(4)
+score = 0
+highscore = 0
 
 font = pygame.font.Font(pygame.font.get_default_font(), 24)
 
@@ -78,6 +81,11 @@ class Star:
         else:
             self.surface.blit(font.render("+1", True, (255-self.dead_counter*5, 255-self.dead_counter*5, 255-self.dead_counter*5)), (x-10,y-self.dead_counter))
        
+class ColorSwitch:
+    def __init__(self, surface):
+        self.x = 250
+        self.y = 400
+       
 class Ball:
     def __init__(self, surface):
         self.x = 250
@@ -88,11 +96,14 @@ class Ball:
         self.color = YELLOW
         
     def collision_detection(self):
+        global score
         x, y = self.x-cam.x, self.y-cam.y
         for star in stars:
             if(star.y >= self.y-16):
                 #print("ayy lmao")
                 star.color = BLACK
+                if(not star.dead):
+                    score+=1
                 star.dead = True
       
     def update(self):
@@ -128,10 +139,13 @@ def handle_events():
                 ball.vel = 8
     return True
 
+def draw_ui():
+    screen.blit(font.render(str(score), True, WHITE), (10, 10))
     
 while(handle_events()):
     clock.tick(60)
     screen.fill((20,20,20))
+    draw_ui()
 	
     for obstacle in obstacles:
         obstacle.update()
