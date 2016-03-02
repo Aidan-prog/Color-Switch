@@ -122,6 +122,19 @@ class Ball:
                 elif(self.color != TEAL and obstacle.angle <= 90):
                     print("teal", self.y)
                     gamestate = GAMEOVER
+            elif(obstacle.y-(obstacle.rad/2)+25 >= self.y-self.rad):
+                if(self.color != RED and obstacle.angle > 90 and obstacle.angle <= 180):
+                    print("red", self.y)
+                    gamestate = GAMEOVER
+                elif(self.color != TEAL and obstacle.angle > 180 and obstacle.angle <= 270):
+                    print("teal", self.y)
+                    gamestate = GAMEOVER
+                elif(self.color != YELLOW and obstacle.angle > 270 and obstacle.angle <= 360):
+                    print("yellow", self.y)
+                    gamestate = GAMEOVER
+                elif(self.color != PURPLE and obstacle.angle <= 90):
+                    print("purple", self.y)
+                    gamestate = GAMEOVER
                     
     def update(self):
         self.vel -= 0.5
@@ -133,13 +146,12 @@ class Ball:
     def draw(self):
         x = int(self.x-cam.x)
         y = int(self.y-cam.y)
-        # pygame.draw.circle(self.surface, (255,255,255), (x,y), self.rad)
         pygame.gfxdraw.aacircle(self.surface, x, y, self.rad, self.color)
         pygame.gfxdraw.filled_circle(self.surface, x, y, self.rad, self.color)
         
       
 ball = Ball(screen)
-for i in range(5):
+for i in range(100):
     temp = Obstacle(screen, 250, -400*i)
     temp_star = Star(screen, 250, -400*i)
     obstacles.append(temp)
@@ -151,7 +163,7 @@ def restart():
     ball = Ball(screen)
     del stars[:]
     del obstacles[:]
-    for i in range(5):
+    for i in range(100):
         temp = Obstacle(screen, 250, -400*i)
         temp_star = Star(screen, 250, -400*i)
         obstacles.append(temp)
@@ -187,7 +199,7 @@ def draw_game_over():
     screen.blit(font.render("gameover", True, WHITE), (200, 250))
     
 while(handle_events()):
-    clock.tick(60)
+    #clock.tick(60)
     screen.fill((20,20,20))
     if(gamestate == MENU):
         draw_menu()
@@ -201,7 +213,8 @@ while(handle_events()):
             star.update()
         
         for obstacle in obstacles:
-            obstacle.draw()
+            if(obstacle.y-cam.y <= 500):
+                obstacle.draw()
         for star in stars:
             star.draw()
         ball.draw()
