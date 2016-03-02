@@ -18,6 +18,7 @@ clock = pygame.time.Clock()
 obstacles = list() 
 stars = list()
 MENU, GAMEPLAY, PAUSE, GAMEOVER = range(4)
+gamestate = MENU
 score = 0
 highscore = 0
 
@@ -96,16 +97,32 @@ class Ball:
         self.color = YELLOW
         
     def collision_detection(self):
-        global score
+        global score, gamestate   
         x, y = self.x-cam.x, self.y-cam.y
         for star in stars:
-            if(star.y >= self.y-16):
-                #print("ayy lmao")
+            if(star.y+16 >= self.y):
+                print(star.y)
                 star.color = BLACK
                 if(not star.dead):
                     score+=1
+                    print("+1 score")
                 star.dead = True
-      
+				
+        for obstacle in obstacles:
+            if(obstacle.y+int(obstacle.rad/2) >= self.y and obstacle.y+int(obstacle.rad/2)-25 <= self.y):
+                if(self.color != YELLOW and obstacle.angle > 90 and obstacle.angle <= 180):
+                    print("yellow ", self.y)
+                    gamestate = GAMEOVER
+                elif(self.color != PURPLE and obstacle.angle > 180 and obstacle.angle <= 270):
+                    print("purple", self.y)
+                    gamestate = GAMEOVER
+                elif(self.color != RED and obstacle.angle > 270 and obstacle.angle <= 360):
+                    print("red", self.y)
+                    gamestate = GAMEOVER
+                elif(self.color != TEAL and obstacle.angle <= 90):
+                    print("teal", self.y)
+                    gamestate = GAMEOVER
+                    
     def update(self):
         self.vel -= 0.5
         self.y -= self.vel
@@ -114,7 +131,7 @@ class Ball:
         self.collision_detection()
         
     def draw(self):
-        x = int(self.x+cam.x)
+        x = int(self.x-cam.x)
         y = int(self.y-cam.y)
         # pygame.draw.circle(self.surface, (255,255,255), (x,y), self.rad)
         pygame.gfxdraw.aacircle(self.surface, x, y, self.rad, self.color)
@@ -122,13 +139,27 @@ class Ball:
         
       
 ball = Ball(screen)
-for i in range(50):
+for i in range(5):
     temp = Obstacle(screen, 250, -400*i)
     temp_star = Star(screen, 250, -400*i)
     obstacles.append(temp)
     stars.append(temp_star)
 
+def restart(): 
+    global cam, ball, obstacles, score, stars
+    cam = Camera()
+    ball = Ball(screen)
+    del stars[:]
+    del obstacles[:]
+    for i in range(5):
+        temp = Obstacle(screen, 250, -400*i)
+        temp_star = Star(screen, 250, -400*i)
+        obstacles.append(temp)
+        stars.append(temp_star)
+    score = 0
+    
 def handle_events():
+    global gamestate
     for e in pygame.event.get():
         if(e.type == pygame.QUIT):
             return False
@@ -136,31 +167,47 @@ def handle_events():
             if(e.key == pygame.K_ESCAPE):
                 return False
             elif(e.key == pygame.K_SPACE):
-                ball.vel = 8
+                if(gamestate == GAMEPLAY):
+                    ball.vel = 8
+                elif(gamestate == GAMEOVER):
+                    restart()
+                    gamestate = GAMEPLAY
+                elif(gamestate == MENU):
+                    restart()
+                    gamestate = GAMEPLAY
     return True
 
 def draw_ui():
     screen.blit(font.render(str(score), True, WHITE), (10, 10))
     
+def draw_menu():
+    ball.draw()
+    
+def draw_game_over():
+    screen.blit(font.render("gameover", True, WHITE), (200, 250))
+    
 while(handle_events()):
     clock.tick(60)
     screen.fill((20,20,20))
-    draw_ui()
-	
-    for obstacle in obstacles:
-        obstacle.update()
-    for star in stars:
-        star.update()
-    ball.update()
-	
-    ball.draw()
-    for obstacle in obstacles:
-        obstacle.draw()
-    for star in stars:
-        star.draw()
-    star.draw()
-    
+    if(gamestate == MENU):
+        draw_menu()
+    elif(gamestate == GAMEPLAY):
+        draw_ui()
+        
+        for obstacle in obstacles:
+            obstacle.update()
+        ball.update()
+        for star in stars:
+            star.update()
+        
+        for obstacle in obstacles:
+            obstacle.draw()
+        for star in stars:
+            star.draw()
+        ball.draw()
+    elif(gamestate == GAMEOVER):
+        draw_game_over()
+        
     pygame.display.flip()
-    #pygame.display.set_icon(screen)
     
 pygame.quit()
