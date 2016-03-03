@@ -2,11 +2,11 @@ import pygame, pygame.gfxdraw, math
 
 pygame.init()
 pygame.font.init()
-SCREEN_WIDTH, SCREEN_HEIGHT = 500,500
+SCREEN_WIDTH, SCREEN_HEIGHT = 500,700
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Color Switch")
-#pygame.display.set_icon(pygame.image.load("H:\\Documents\\Programming\\Python\\test2\\color_switch.png"))
-pygame.display.set_icon(pygame.image.load("color_switch.png"))
+pygame.display.set_icon(pygame.image.load("H:\\Documents\\Programming\\Python\\test2\\color_switch.png"))
+#pygame.display.set_icon(pygame.image.load("color_switch.png"))
 #pygame.display.set_icon(pygame.image.load("C:\\Users\\Tupou\\Documents\\Programming\\Python\\Color Switch\\color_switch.png"))
 
 PURPLE = (140, 19, 251)
@@ -25,6 +25,7 @@ score = 0
 highscore = 0
 
 font = pygame.font.Font(pygame.font.get_default_font(), 24)
+menu_font = pygame.font.Font(pygame.font.get_default_font(), 60)
 
 class Camera:
     def __init__(self):
@@ -34,29 +35,34 @@ class Camera:
 cam = Camera() 
        
 class Obstacle:
-    def __init__(self, surface, x=250, y=150, rad=220, angle = 0):
+    def __init__(self, surface, x=250, y=150, rad=220, angle = 0, vel = 1):
         self.x = x
         self.y = y
         self.rad = rad
         self.angle = angle
         self.surface = surface
+        self.vel = vel
+        self.thickness = 25
         
     def update(self):
-        self.angle+=1
+        self.angle+=self.vel
         if(self.angle > 360):
             self.angle-=360
+        elif(self.angle <= 0):
+            self.angle+=360
         
     def draw(self):
         #pygame.gfxdraw.arc(self.surface, self.x, self.y, 100, 0, 180, (255,255,255))
         x, y = (self.x-float(self.rad/2)+cam.x, self.y-float(self.rad/2)-cam.y)
-        pygame.draw.arc(self.surface, PURPLE , (x, y, self.rad, self.rad), math.radians(0+self.angle) ,math.radians(90+self.angle), 25)
-        pygame.draw.arc(self.surface, PURPLE , (x, y+1, self.rad, self.rad), math.radians(0+self.angle) ,math.radians(90+self.angle), 25)
-        pygame.draw.arc(self.surface, YELLOW , (x, y, self.rad, self.rad), math.radians(90+self.angle) , math.radians(180+self.angle), 25)
-        pygame.draw.arc(self.surface, YELLOW , (x, y+1, self.rad, self.rad), math.radians(90+self.angle) ,math.radians(180+self.angle), 25)
-        pygame.draw.arc(self.surface, TEAL , (x, y, self.rad, self.rad), math.radians(180+self.angle) ,math.radians(270+self.angle), 25)
-        pygame.draw.arc(self.surface, TEAL , (x, y+1, self.rad, self.rad), math.radians(180+self.angle) ,math.radians(270+self.angle), 25)
-        pygame.draw.arc(self.surface, RED , (x, y, self.rad, self.rad), math.radians(270+self.angle) ,math.radians(360+self.angle), 25)
-        pygame.draw.arc(self.surface, RED , (x, y+1, self.rad, self.rad), math.radians(270+self.angle) ,math.radians(360+self.angle), 25)
+        thick = self.thickness
+        pygame.draw.arc(self.surface, PURPLE , (x, y, self.rad, self.rad), math.radians(0+self.angle) ,math.radians(90+self.angle), thick)
+        pygame.draw.arc(self.surface, PURPLE , (x, y+1, self.rad, self.rad), math.radians(0+self.angle) ,math.radians(90+self.angle), thick)
+        pygame.draw.arc(self.surface, YELLOW , (x, y, self.rad, self.rad), math.radians(90+self.angle) , math.radians(180+self.angle), thick)
+        pygame.draw.arc(self.surface, YELLOW , (x, y+1, self.rad, self.rad), math.radians(90+self.angle) ,math.radians(180+self.angle), thick)
+        pygame.draw.arc(self.surface, TEAL , (x, y, self.rad, self.rad), math.radians(180+self.angle) ,math.radians(270+self.angle), thick)
+        pygame.draw.arc(self.surface, TEAL , (x, y+1, self.rad, self.rad), math.radians(180+self.angle) ,math.radians(270+self.angle), thick)
+        pygame.draw.arc(self.surface, RED , (x, y, self.rad, self.rad), math.radians(270+self.angle) ,math.radians(360+self.angle), thick)
+        pygame.draw.arc(self.surface, RED , (x, y+1, self.rad, self.rad), math.radians(270+self.angle) ,math.radians(360+self.angle), thick)
         
 class Star:
     def __init__(self, surface, x, y):
@@ -164,8 +170,8 @@ ball = Ball(screen)
 color_switch = ColorSwitch(screen, 250, 250)
 
 for i in range(20):
-    temp = Obstacle(screen, 250, -400*i)
-    temp_star = Star(screen, 250, -400*i)
+    temp = Obstacle(screen, SCREEN_WIDTH/2, -400*i)
+    temp_star = Star(screen, SCREEN_WIDTH/2, -400*i)
     obstacles.append(temp)
     stars.append(temp_star)
 
@@ -176,8 +182,8 @@ def restart():
     del stars[:]
     del obstacles[:]
     for i in range(20):
-        temp = Obstacle(screen, 250, -400*i)
-        temp_star = Star(screen, 250, -400*i)
+        temp = Obstacle(screen, SCREEN_WIDTH/2, -400*i)
+        temp_star = Star(screen, SCREEN_WIDTH/2, -400*i)
         obstacles.append(temp)
         stars.append(temp_star)
     score = 0
@@ -204,23 +210,49 @@ def handle_events():
 def draw_ui():
     screen.blit(font.render(str(score), True, WHITE), (10, 10))
     
-menu_obstacle = Obstacle(screen, 250, 250,220, 45)
-menu_obstacle2 = Obstacle(screen, 250, 250,280, 45+180)
-menu_obstacle3 = Obstacle(screen, 250, 250,340, 45+90)
+x, y = int(SCREEN_WIDTH/2), int(SCREEN_HEIGHT/2)
+menu_obstacle = Obstacle(screen, x, y,200, 45)
+menu_obstacle2 = Obstacle(screen, x, y,250, 45+180,-1)
+menu_obstacle3 = Obstacle(screen, x, y,310, 45+90)
+menu_obstacle.thickness = 15
+menu_obstacle2.thickness = 20
+
+o = 50
+
+title_obstacle = Obstacle(screen, 280-o, 55, 50, 90)
+title_obstacle2 = Obstacle(screen, 380-o, 55, 50, 0, -1)
+title_obstacle.thickness = 7
+title_obstacle2.thickness = 7
+
 
 def draw_menu():
+    
+    screen.blit(menu_font.render("C    L    R", True, WHITE), (200-o, 30))
+    screen.blit(menu_font.render("SWITCH", True, WHITE), (200-o, 90))
+
     menu_obstacle.update()
     menu_obstacle2.update()
     menu_obstacle3.update()
+    title_obstacle.update()
+    title_obstacle2.update()
     
     menu_obstacle.draw()
     menu_obstacle2.draw()
     menu_obstacle3.draw()
-    pygame.draw.circle(screen, (70,70,70), (250,250), 80)
+    pygame.draw.circle(screen, (70,70,70), (x,y), 80)
+    points = ((x-20, y-40), (x-20, y+40), (x+35, y))
+    pygame.gfxdraw.aapolygon(screen, points, WHITE)
+    pygame.gfxdraw.filled_polygon(screen, points, WHITE)
+    title_obstacle.draw()
+    title_obstacle2.draw()
     #ball.draw()
     
 def draw_game_over():
-    screen.blit(font.render("gameover", True, WHITE), (200, 250))
+    #screen.blit(font.render("GAME OVER", True, WHITE), (SCREEN_WIDTH/2-50, SCREEN_HEIGHT/2))
+    screen.blit(font.render("S C O R E", True, WHITE), (SCREEN_WIDTH/2-50, 120))
+    screen.blit(menu_font.render(str(score), True, WHITE), (SCREEN_WIDTH/2-10, 150))
+    screen.blit(font.render("B E S T   S C O R E", True, WHITE), (SCREEN_WIDTH/2-100, 250))
+    screen.blit(menu_font.render(str(score), True, WHITE), (SCREEN_WIDTH/2-10, 290))
     
 while(handle_events()):
     clock.tick(80)
@@ -243,6 +275,7 @@ while(handle_events()):
             if(star.y+13-cam.y >= 0 and star.y-13-cam.y <= SCREEN_HEIGHT):
                 star.draw()
         ball.draw()
+        color_switch.draw()
         
     elif(gamestate == GAMEOVER):
         draw_game_over()
