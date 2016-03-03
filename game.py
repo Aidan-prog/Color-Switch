@@ -5,7 +5,9 @@ pygame.font.init()
 SCREEN_WIDTH, SCREEN_HEIGHT = 500,500
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Color Switch")
-pygame.display.set_icon(pygame.image.load("H:\\Documents\\Programming\\Python\\test2\\color_switch.png"))
+#pygame.display.set_icon(pygame.image.load("H:\\Documents\\Programming\\Python\\test2\\color_switch.png"))
+# pygame.display.set_icon(pygame.image.load("color_switch.png"))
+pygame.display.set_icon(pygame.image.load("C:\\Users\\Tupou\\Documents\\Programming\\Python\\Color Switch\\color_switch.png"))
 
 PURPLE = (140, 19, 251) 
 RED = (255, 0, 128)
@@ -122,7 +124,7 @@ class Ball:
                 elif(self.color != TEAL and obstacle.angle <= 90):
                     print("teal", self.y)
                     gamestate = GAMEOVER
-            elif(obstacle.y-(obstacle.rad/2)+25 >= self.y-self.rad):
+            elif(obstacle.y-(obstacle.rad/2)+25 >= self.y-self.rad and obstacle.y-(obstacle.rad/2) <= self.y):
                 if(self.color != RED and obstacle.angle > 90 and obstacle.angle <= 180):
                     print("red", self.y)
                     gamestate = GAMEOVER
@@ -151,7 +153,7 @@ class Ball:
         
       
 ball = Ball(screen)
-for i in range(100):
+for i in range(50):
     temp = Obstacle(screen, 250, -400*i)
     temp_star = Star(screen, 250, -400*i)
     obstacles.append(temp)
@@ -163,7 +165,7 @@ def restart():
     ball = Ball(screen)
     del stars[:]
     del obstacles[:]
-    for i in range(100):
+    for i in range(50):
         temp = Obstacle(screen, 250, -400*i)
         temp_star = Star(screen, 250, -400*i)
         obstacles.append(temp)
@@ -199,7 +201,7 @@ def draw_game_over():
     screen.blit(font.render("gameover", True, WHITE), (200, 250))
     
 while(handle_events()):
-    #clock.tick(60)
+    clock.tick(80)
     screen.fill((20,20,20))
     if(gamestate == MENU):
         draw_menu()
@@ -213,10 +215,11 @@ while(handle_events()):
             star.update()
         
         for obstacle in obstacles:
-            if(obstacle.y-cam.y <= 500):
+            if(obstacle.y+obstacle.rad/2-cam.y >= 0 and obstacle.y-obstacle.rad/2-cam.y <= SCREEN_HEIGHT):
                 obstacle.draw()
         for star in stars:
-            star.draw()
+            if(star.y+13-cam.y >= 0 and star.y-13-cam.y <= SCREEN_HEIGHT):
+                star.draw()
         ball.draw()
     elif(gamestate == GAMEOVER):
         draw_game_over()
