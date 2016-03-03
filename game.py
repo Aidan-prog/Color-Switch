@@ -34,11 +34,11 @@ class Camera:
 cam = Camera() 
        
 class Obstacle:
-    def __init__(self, surface, x=250, y=150):
+    def __init__(self, surface, x=250, y=150, rad=220, angle = 0):
         self.x = x
         self.y = y
-        self.rad = 220
-        self.angle = 0
+        self.rad = rad
+        self.angle = angle
         self.surface = surface
         
     def update(self):
@@ -85,9 +85,17 @@ class Star:
             self.surface.blit(font.render("+1", True, (255-self.dead_counter*5, 255-self.dead_counter*5, 255-self.dead_counter*5)), (x-10,y-self.dead_counter))
        
 class ColorSwitch:
-    def __init__(self, surface):
-        self.x = 250
-        self.y = 400
+    def __init__(self, surface, x, y):
+        self.x = x
+        self.y = y
+        self.surface = surface
+        self.rad = 16
+        
+    def draw(self):
+        x, y = int(self.x-cam.x), int(self.y-cam.y)
+        #pygame.draw.circle(self.surface, WHITE, (x,y), self.rad)
+        #pygame.gfxdraw.pie(self.surface, x, y, self.rad, 0, 90, PURPLE)
+        
        
 class Ball:
     def __init__(self, surface):
@@ -153,7 +161,9 @@ class Ball:
         
       
 ball = Ball(screen)
-for i in range(50):
+color_switch = ColorSwitch(screen, 250, 250)
+
+for i in range(20):
     temp = Obstacle(screen, 250, -400*i)
     temp_star = Star(screen, 250, -400*i)
     obstacles.append(temp)
@@ -165,7 +175,7 @@ def restart():
     ball = Ball(screen)
     del stars[:]
     del obstacles[:]
-    for i in range(50):
+    for i in range(20):
         temp = Obstacle(screen, 250, -400*i)
         temp_star = Star(screen, 250, -400*i)
         obstacles.append(temp)
@@ -194,8 +204,20 @@ def handle_events():
 def draw_ui():
     screen.blit(font.render(str(score), True, WHITE), (10, 10))
     
+menu_obstacle = Obstacle(screen, 250, 250,220, 45)
+menu_obstacle2 = Obstacle(screen, 250, 250,280, 45+180)
+menu_obstacle3 = Obstacle(screen, 250, 250,340, 45+90)
+
 def draw_menu():
-    ball.draw()
+    menu_obstacle.update()
+    menu_obstacle2.update()
+    menu_obstacle3.update()
+    
+    menu_obstacle.draw()
+    menu_obstacle2.draw()
+    menu_obstacle3.draw()
+    pygame.draw.circle(screen, (70,70,70), (250,250), 80)
+    #ball.draw()
     
 def draw_game_over():
     screen.blit(font.render("gameover", True, WHITE), (200, 250))
@@ -221,6 +243,7 @@ while(handle_events()):
             if(star.y+13-cam.y >= 0 and star.y-13-cam.y <= SCREEN_HEIGHT):
                 star.draw()
         ball.draw()
+        
     elif(gamestate == GAMEOVER):
         draw_game_over()
         
