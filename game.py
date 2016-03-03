@@ -6,10 +6,10 @@ SCREEN_WIDTH, SCREEN_HEIGHT = 500,500
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Color Switch")
 #pygame.display.set_icon(pygame.image.load("H:\\Documents\\Programming\\Python\\test2\\color_switch.png"))
-# pygame.display.set_icon(pygame.image.load("color_switch.png"))
-pygame.display.set_icon(pygame.image.load("C:\\Users\\Tupou\\Documents\\Programming\\Python\\Color Switch\\color_switch.png"))
+pygame.display.set_icon(pygame.image.load("color_switch.png"))
+#pygame.display.set_icon(pygame.image.load("C:\\Users\\Tupou\\Documents\\Programming\\Python\\Color Switch\\color_switch.png"))
 
-PURPLE = (140, 19, 251) 
+PURPLE = (140, 19, 251)
 RED = (255, 0, 128)
 TEAL = (53, 226, 242)
 YELLOW = (246, 223, 14)
