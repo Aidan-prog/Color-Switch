@@ -53,7 +53,8 @@ class Obstacle:
         
     def draw(self):
         #pygame.gfxdraw.arc(self.surface, self.x, self.y, 100, 0, 180, (255,255,255))
-        x, y = (self.x-float(self.rad/2)+cam.x, self.y-float(self.rad/2)-cam.y)
+        x, y = (self.x-float(self.rad/2)-cam.x, self.y-float(self.rad/2)-cam.y)
+        x, y = int(x), int(y)
         thick = self.thickness
         pygame.draw.arc(self.surface, PURPLE , (x, y, self.rad, self.rad), math.radians(0+self.angle) ,math.radians(90+self.angle), thick)
         pygame.draw.arc(self.surface, PURPLE , (x, y+1, self.rad, self.rad), math.radians(0+self.angle) ,math.radians(90+self.angle), thick)
@@ -63,6 +64,13 @@ class Obstacle:
         pygame.draw.arc(self.surface, TEAL , (x, y+1, self.rad, self.rad), math.radians(180+self.angle) ,math.radians(270+self.angle), thick)
         pygame.draw.arc(self.surface, RED , (x, y, self.rad, self.rad), math.radians(270+self.angle) ,math.radians(360+self.angle), thick)
         pygame.draw.arc(self.surface, RED , (x, y+1, self.rad, self.rad), math.radians(270+self.angle) ,math.radians(360+self.angle), thick)
+        
+        #pygame.gfxdraw.aacircle(self.surface, int(self.x), int(self.y), int(self.rad/2), (20,20,20))
+        pygame.gfxdraw.aacircle(self.surface, int(self.x-cam.x), int(self.y-cam.y), int(self.rad/2)+1, (20,20,20))
+        pygame.gfxdraw.aacircle(self.surface, int(self.x-cam.x), int(self.y-cam.y), int(self.rad/2), (20,20,20))
+        pygame.gfxdraw.aacircle(self.surface, int(self.x-cam.x), int(self.y-cam.y), int(self.rad/2)-thick-1, (20,20,20))
+        pygame.gfxdraw.aacircle(self.surface, int(self.x-cam.x), int(self.y-cam.y), int(self.rad/2)-thick, (20,20,20))
+        
         
 class Star:
     def __init__(self, surface, x, y):
@@ -113,7 +121,7 @@ class Ball:
         self.color = YELLOW
         
     def collision_detection(self):
-        global score, gamestate   
+        global score   
         x, y = self.x-cam.x, self.y-cam.y
         for star in stars:
             if(star.y+16 >= self.y):
@@ -127,31 +135,29 @@ class Ball:
         for obstacle in obstacles:
             if(obstacle.y+int(obstacle.rad/2) >= self.y and obstacle.y+int(obstacle.rad/2)-25 <= self.y):
                 if(self.color != YELLOW and obstacle.angle > 90 and obstacle.angle <= 180):
-                    print("yellow ", self.y)
-                    gamestate = GAMEOVER
+                    self.die()
                 elif(self.color != PURPLE and obstacle.angle > 180 and obstacle.angle <= 270):
-                    print("purple", self.y)
-                    gamestate = GAMEOVER
+                    self.die()
                 elif(self.color != RED and obstacle.angle > 270 and obstacle.angle <= 360):
-                    print("red", self.y)
-                    gamestate = GAMEOVER
+                    self.die()
                 elif(self.color != TEAL and obstacle.angle <= 90):
-                    print("teal", self.y)
-                    gamestate = GAMEOVER
+                    self.die()
             elif(obstacle.y-(obstacle.rad/2)+25 >= self.y-self.rad and obstacle.y-(obstacle.rad/2) <= self.y):
                 if(self.color != RED and obstacle.angle > 90 and obstacle.angle <= 180):
-                    print("red", self.y)
-                    gamestate = GAMEOVER
+                    self.die()
                 elif(self.color != TEAL and obstacle.angle > 180 and obstacle.angle <= 270):
-                    print("teal", self.y)
-                    gamestate = GAMEOVER
+                    self.die()
                 elif(self.color != YELLOW and obstacle.angle > 270 and obstacle.angle <= 360):
-                    print("yellow", self.y)
-                    gamestate = GAMEOVER
+                    self.die()
                 elif(self.color != PURPLE and obstacle.angle <= 90):
-                    print("purple", self.y)
-                    gamestate = GAMEOVER
-                    
+                    self.die()
+             
+    def die(self):
+        global score, highscore, gamestate
+        gamestate = GAMEOVER
+        if(score > highscore):
+            highscore = score
+             
     def update(self):
         self.vel -= 0.5
         self.y -= self.vel
@@ -219,16 +225,16 @@ menu_obstacle2.thickness = 20
 
 o = 50
 
-title_obstacle = Obstacle(screen, 280-o, 55, 50, 90)
-title_obstacle2 = Obstacle(screen, 380-o, 55, 50, 0, -1)
+title_obstacle = Obstacle(screen, 210, 65, 50, 90)
+title_obstacle2 = Obstacle(screen, 310, 65, 50, 0, -1)
 title_obstacle.thickness = 7
 title_obstacle2.thickness = 7
 
 
 def draw_menu():
     
-    screen.blit(menu_font.render("C    L    R", True, WHITE), (200-o, 30))
-    screen.blit(menu_font.render("SWITCH", True, WHITE), (200-o, 90))
+    screen.blit(menu_font.render("C    L    R", True, WHITE), (130, 40))
+    screen.blit(menu_font.render("SWITCH", True, WHITE), (130, 100))
 
     menu_obstacle.update()
     menu_obstacle2.update()
@@ -243,8 +249,18 @@ def draw_menu():
     points = ((x-20, y-40), (x-20, y+40), (x+35, y))
     pygame.gfxdraw.aapolygon(screen, points, WHITE)
     pygame.gfxdraw.filled_polygon(screen, points, WHITE)
+    pygame.gfxdraw.aacircle(screen, x, y, 155, (20,20,20))
+    pygame.gfxdraw.aacircle(screen, x, y, 156, (20,20,20))
+    pygame.gfxdraw.aacircle(screen, x, y, 130, (20,20,20))
     title_obstacle.draw()
+    title_obstacle.y-=1
+    title_obstacle.draw()
+    title_obstacle.y+=1
+    pygame.gfxdraw.aacircle(screen, 210, 65, 27, (20,20,20))
     title_obstacle2.draw()
+    title_obstacle2.y-=1
+    title_obstacle2.draw()
+    title_obstacle2.y+=1
     #ball.draw()
     
 def draw_game_over():
@@ -252,7 +268,7 @@ def draw_game_over():
     screen.blit(font.render("S C O R E", True, WHITE), (SCREEN_WIDTH/2-50, 120))
     screen.blit(menu_font.render(str(score), True, WHITE), (SCREEN_WIDTH/2-10, 150))
     screen.blit(font.render("B E S T   S C O R E", True, WHITE), (SCREEN_WIDTH/2-100, 250))
-    screen.blit(menu_font.render(str(score), True, WHITE), (SCREEN_WIDTH/2-10, 290))
+    screen.blit(menu_font.render(str(highscore), True, WHITE), (SCREEN_WIDTH/2-10, 290))
     
 while(handle_events()):
     clock.tick(80)
