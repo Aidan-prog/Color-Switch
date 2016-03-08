@@ -127,16 +127,49 @@ class ColorSwitch:
         pygame.gfxdraw.aacircle(self.surface, x, y,self.rad-1, (20,20,20))
         pygame.gfxdraw.aacircle(self.surface, x, y,self.rad, (20,20,20))
         
+def random_color():
+    rand = random.randint(0,3)
+    if(rand == 0):
+        return PURPLE
+    elif(rand == 1):
+        return RED
+    elif(rand == 2):
+        return TEAL
+    elif(rand == 3):
+        return YELLOW
+      
+class ExplosionBall:
+    def __init__(self, surface, x=250, y=400):
+        self.x = x
+        self.y = y
+        self.rad = 3
+        self.surface = surface
+        self.vel = [random.uniform(-10,10),random.uniform(-50,50)]
+        self.color = random_color()
         
-       
+    def draw(self):
+        x, y = int(self.x-cam.x), int(self.y-cam.y)
+        pygame.gfxdraw.aacircle(self.surface, x, y, self.rad, self.color)
+        pygame.gfxdraw.filled_circle(self.surface, x, y, self.rad, self.color)
+        
+    def update(self):
+        X,Y = 0,1
+        self.vel[Y] += 1
+        self.x += self.vel[X]
+        self.y += self.vel[Y]
+        
+      
 class Ball:
-    def __init__(self, surface):
-        self.x = 250
-        self.y = 400
+    def __init__(self, surface, x=250, y=400):
+        self.x = x
+        self.y = y
         self.rad = 10
         self.surface = surface
         self.vel = 0
-        self.color = YELLOW
+        self.color = random_color()
+        self.dead = False
+        self.dead_counter = 0
+        self.explosion_balls = []
         
     def collision_detection(self):
         global score   
@@ -149,7 +182,7 @@ class Ball:
                     score+=1
                     print("+1 score")
                 star.dead = True
-				
+                
         for obstacle in obstacles:
             if(obstacle.y+int(obstacle.rad/2) >= self.y and obstacle.y+int(obstacle.rad/2)-25 <= self.y):
                 if(self.color != YELLOW and obstacle.angle > 90 and obstacle.angle <= 180):
@@ -172,38 +205,47 @@ class Ball:
                
         for cs in colorswitches:
             if(cs.y >= self.y-self.rad*2):
-                rand = random.randint(0,3)
-                if(rand == 0):
-                    self.color = PURPLE
-                elif(rand == 1):
-                    self.color = RED
-                elif(rand == 2):
-                    self.color = TEAL
-                elif(rand == 3):
-                    self.color = YELLOW
+                self.color = random_color()
                 colorswitches.remove(cs)
              
     def die(self):
-        global score, highscore, gamestate
-        gamestate = GAMEOVER
-        if(score > highscore):
-            highscore = score
-             
+        self.dying_counter = 0
+        self.dead = True
+        for i in range(1000):
+            temp = ExplosionBall(self.surface, self.x, self.y)
+            self.explosion_balls.append(temp)
+        
     def update(self):
-        self.vel -= 0.5
-        self.y -= self.vel
-        if(cam.y >= self.y-SCREEN_HEIGHT/2):
-            cam.y = self.y-SCREEN_HEIGHT/2
-        self.collision_detection()
+        if(not self.dead):
+            self.vel -= 0.5
+            self.y -= self.vel
+            if(cam.y >= self.y-SCREEN_HEIGHT/2):
+                cam.y = self.y-SCREEN_HEIGHT/2
+            self.collision_detection()
+        elif(self.dead and self.dead_counter <= 80):
+            self.dead_counter+=1
+            for xball in self.explosion_balls:
+                xball.update()
+        else:
+            global score, highscore, gamestate
+            gamestate = GAMEOVER
+            if(score > highscore):
+                highscore = score
         
     def draw(self):
         x = int(self.x-cam.x)
         y = int(self.y-cam.y)
         if(self.y > 10000):
             self.y = 9000
-        pygame.gfxdraw.aacircle(self.surface, x, y, self.rad, self.color)
-        pygame.gfxdraw.filled_circle(self.surface, x, y, self.rad, self.color)
-        
+        if(not self.dead):
+            pygame.gfxdraw.aacircle(self.surface, x, y, self.rad, self.color)
+            pygame.gfxdraw.filled_circle(self.surface, x, y, self.rad, self.color)
+        elif(self.dead_counter <= 80):
+            dc = self.dead_counter
+            #pygame.gfxdraw.aacircle(self.surface, x, y, self.rad-dc, self.color)
+            #pygame.gfxdraw.filled_circle(self.surface, x, y, self.rad-dc, self.color)\
+            for ball in self.explosion_balls:
+                ball.draw()
       
 ball = Ball(screen)
 color_switch = ColorSwitch(screen, SCREEN_WIDTH/2, 250)
@@ -300,7 +342,7 @@ def draw_game_over():
     screen.blit(menu_font.render(str(highscore), True, WHITE), (SCREEN_WIDTH/2-10, 290))
     
 while(handle_events()):
-    clock.tick(80)
+    clock.tick(60)
     screen.fill((20,20,20))
     if(gamestate == MENU):
         draw_menu()
