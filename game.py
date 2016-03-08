@@ -208,12 +208,6 @@ class Ball:
 ball = Ball(screen)
 color_switch = ColorSwitch(screen, SCREEN_WIDTH/2, 250)
 
-'''for i in range(20):
-    temp = Obstacle(screen, SCREEN_WIDTH/2, -400*i)
-    temp_star = Star(screen, SCREEN_WIDTH/2, -400*i)
-    obstacles.append(temp)
-    stars.append(temp_star)'''
-
 def restart(): 
     global cam, ball, obstacles, score, stars
     cam = Camera()
@@ -326,7 +320,8 @@ while(handle_events()):
             if(star.y+13-cam.y >= 0 and star.y-13-cam.y <= SCREEN_HEIGHT):
                 star.draw()
         for cs in colorswitches:
-            cs.draw()
+            if(cs.y+cs.rad-cam.y >= 0 and cs.y-cs.rad-cam.y <= SCREEN_HEIGHT):
+                cs.draw()
         ball.draw()
         
     elif(gamestate == GAMEOVER):
