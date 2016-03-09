@@ -312,6 +312,10 @@ def handle_events():
 
 def draw_ui():
     screen.blit(font.render(str(score), True, WHITE), (10, 10))
+    if(highscore >= 1):
+        w = SCREEN_WIDTH/5
+        for i in range(6):
+            pygame.draw.line(screen, WHITE, (w*i-20-cam.x, -600*(highscore-1)-cam.y), (w*i+20-cam.x, -600*(highscore-1)-cam.y), 10)
     
 x, y = int(SCREEN_WIDTH/2), int(SCREEN_HEIGHT/2)
 menu_obstacle = Obstacle(screen, x, y,200, 45)
@@ -371,11 +375,10 @@ while(handle_events()):
     if(gamestate == MENU):
         draw_menu()
     elif(gamestate == GAMEPLAY):
-        draw_ui()
+        
         
         for obstacle in obstacles:
-            if(obstacle.y+obstacle.rad/2-cam.y >= 0 and obstacle.y-obstacle.rad/2-cam.y <= SCREEN_HEIGHT):
-                obstacle.update()
+            obstacle.update()
         ball.update()
         for star in stars:
             star.update()
@@ -390,6 +393,7 @@ while(handle_events()):
             if(cs.y+cs.rad-cam.y >= 0 and cs.y-cs.rad-cam.y <= SCREEN_HEIGHT):
                 cs.draw()
         ball.draw()
+        draw_ui()
         
     elif(gamestate == GAMEOVER):
         draw_game_over()
