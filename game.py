@@ -5,8 +5,8 @@ pygame.font.init()
 SCREEN_WIDTH, SCREEN_HEIGHT = 500,700
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Color Switch")
-pygame.display.set_icon(pygame.image.load("H:\\Documents\\Programming\\Python\\test2\\color_switch.png"))
-#pygame.display.set_icon(pygame.image.load("color_switch.png"))
+#pygame.display.set_icon(pygame.image.load("H:\\Documents\\Programming\\Python\\test2\\color_switch.png"))
+pygame.display.set_icon(pygame.image.load("color_switch.png"))
 #pygame.display.set_icon(pygame.image.load("C:\\Users\\Tupou\\Documents\\Programming\\Python\\Color Switch\\color_switch.png"))
 
 PURPLE = (140, 19, 251)
@@ -46,11 +46,17 @@ class Obstacle:
         self.thickness = 25
         
     def update(self):
+        x, y = (self.x-float(self.rad/2)-cam.x, self.y-float(self.rad/2)-cam.y)
+        if(y >= SCREEN_HEIGHT):
+            obstacles.remove(self)
+            print("obstacle was removed")
+            return
         self.angle+=self.vel
         if(self.angle > 360):
             self.angle-=360
         elif(self.angle <= 0):
             self.angle+=360
+        
         
     def draw(self):
         #pygame.gfxdraw.arc(self.surface, self.x, self.y, 100, 0, 180, (255,255,255))
@@ -111,22 +117,6 @@ def draw_pie(x, y, rad, s_angle, e_angle, color):
         pygame.gfxdraw.filled_polygon(screen, points, color)
         #pygame.draw.polygon(screen, RED, points)
       
-class ColorSwitch:
-    def __init__(self, surface, x, y):
-        self.x = x
-        self.y = y
-        self.surface = surface
-        self.rad = 22
-        
-    def draw(self):
-        x, y = int(self.x-cam.x), int(self.y-cam.y)
-        draw_pie(x, y, self.rad, 0, 90, RED)
-        draw_pie(x, y, self.rad, 90, 180, TEAL)
-        draw_pie(x, y, self.rad, 180, 270, YELLOW)
-        draw_pie(x, y, self.rad, 270, 360, PURPLE)
-        pygame.gfxdraw.aacircle(self.surface, x, y,self.rad-1, (20,20,20))
-        pygame.gfxdraw.aacircle(self.surface, x, y,self.rad, (20,20,20))
-        
 def random_color():
     rand = random.randint(0,3)
     if(rand == 0):
@@ -138,13 +128,33 @@ def random_color():
     elif(rand == 3):
         return YELLOW
       
+class ColorSwitch:
+    def __init__(self, surface, x, y, color = random_color()):
+        self.x = x
+        self.y = y
+        self.surface = surface
+        self.rad = 22
+        self.color = color
+        
+    def draw(self):
+        x, y = int(self.x-cam.x), int(self.y-cam.y)
+        draw_pie(x, y, self.rad, 0, 90, RED)
+        draw_pie(x, y, self.rad, 90, 180, TEAL)
+        draw_pie(x, y, self.rad, 180, 270, YELLOW)
+        draw_pie(x, y, self.rad, 270, 360, PURPLE)
+        pygame.gfxdraw.aacircle(self.surface, x, y,self.rad-1, (20,20,20))
+        pygame.gfxdraw.aacircle(self.surface, x, y,self.rad, (20,20,20))
+        
+
+      
 class ExplosionBall:
     def __init__(self, surface, x=250, y=400):
         self.x = x
         self.y = y
-        self.rad = 3
+        #self.rad = 3
+        self.rad = random.randint(2,5)
         self.surface = surface
-        self.vel = [random.uniform(-10,10),random.uniform(-50,50)]
+        self.vel = [random.uniform(-20,20),random.uniform(-20,20)]
         self.color = random_color()
         
     def draw(self):
@@ -154,8 +164,10 @@ class ExplosionBall:
         
     def update(self):
         X,Y = 0,1
-        self.vel[Y] += 1
+        self.vel[Y] += 0.5
         self.x += self.vel[X]
+        if(self.x >= SCREEN_WIDTH or self.x <= 0):
+            self.vel[X] = -self.vel[X]
         self.y += self.vel[Y]
         
       
@@ -176,11 +188,9 @@ class Ball:
         x, y = self.x-cam.x, self.y-cam.y
         for star in stars:
             if(star.y+16 >= self.y):
-                print(star.y)
                 star.color = BLACK
                 if(not star.dead):
                     score+=1
-                    print("+1 score")
                 star.dead = True
                 
         for obstacle in obstacles:
@@ -205,13 +215,13 @@ class Ball:
                
         for cs in colorswitches:
             if(cs.y >= self.y-self.rad*2):
-                self.color = random_color()
+                self.color = cs.color
                 colorswitches.remove(cs)
              
     def die(self):
         self.dying_counter = 0
         self.dead = True
-        for i in range(1000):
+        for i in range(50):
             temp = ExplosionBall(self.surface, self.x, self.y)
             self.explosion_balls.append(temp)
         
@@ -258,10 +268,24 @@ def restart():
     del obstacles[:]
     del colorswitches[:]
     for i in range(20):
-        temp = Obstacle(screen, SCREEN_WIDTH/2, -450*i)
-        temp_star = Star(screen, SCREEN_WIDTH/2, -450*i)
-        temp_colorswitch = ColorSwitch(screen, SCREEN_WIDTH/2, -450*i+250)
-        obstacles.append(temp)
+        o_type = random.randint(0,1)
+        if(o_type == 0):
+            temp = Obstacle(screen, SCREEN_WIDTH/2, -600*i)
+            obstacles.append(temp)
+            temp_colorswitch = ColorSwitch(screen, SCREEN_WIDTH/2, -600*i+300)
+        elif(o_type == 1):
+            temp = Obstacle(screen, SCREEN_WIDTH/2, -600*i, 300,45,1)
+            temp2 = Obstacle(screen, SCREEN_WIDTH/2, -600*i, temp.rad-temp.thickness*2-5, 180+45, -1)
+            obstacles.append(temp)
+            obstacles.append(temp2)
+            t = random.randint(0,1)
+            if(t == 0):
+                col = RED
+            else:
+                col = YELLOW
+            temp_colorswitch = ColorSwitch(screen, SCREEN_WIDTH/2, -600*i+300, col)
+            
+        temp_star = Star(screen, SCREEN_WIDTH/2, -600*i)
         stars.append(temp_star)
         colorswitches.append(temp_colorswitch)
         
@@ -342,7 +366,7 @@ def draw_game_over():
     screen.blit(menu_font.render(str(highscore), True, WHITE), (SCREEN_WIDTH/2-10, 290))
     
 while(handle_events()):
-    clock.tick(60)
+    clock.tick(80)
     screen.fill((20,20,20))
     if(gamestate == MENU):
         draw_menu()
@@ -350,7 +374,8 @@ while(handle_events()):
         draw_ui()
         
         for obstacle in obstacles:
-            obstacle.update()
+            if(obstacle.y+obstacle.rad/2-cam.y >= 0 and obstacle.y-obstacle.rad/2-cam.y <= SCREEN_HEIGHT):
+                obstacle.update()
         ball.update()
         for star in stars:
             star.update()
