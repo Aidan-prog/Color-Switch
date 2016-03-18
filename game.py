@@ -5,8 +5,12 @@ pygame.font.init()
 SCREEN_WIDTH, SCREEN_HEIGHT = 500,700
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Color Switch")
+path = "H:\\Documents\\Programming\\Python\\test2\\"
 #pygame.display.set_icon(pygame.image.load("H:\\Documents\\Programming\\Python\\test2\\color_switch.png"))
-pygame.display.set_icon(pygame.image.load("color_switch.png"))
+# pygame.display.set_icon(pygame.image.load("color_switch.png"))
+pygame.display.set_icon(pygame.image.load(path+"color_switch.png"))
+retry = pygame.image.load(path+"color_switch_retry.png")
+retry = pygame.transform.flip(retry, True, False)
 #pygame.display.set_icon(pygame.image.load("C:\\Users\\Tupou\\Documents\\Programming\\Python\\Color Switch\\color_switch.png"))
 
 PURPLE = (140, 19, 251)
@@ -115,7 +119,7 @@ def draw_pie(x, y, rad, s_angle, e_angle, color):
     if(len(points)>2):
         pygame.gfxdraw.aapolygon(screen, points, color)
         pygame.gfxdraw.filled_polygon(screen, points, color)
-        #pygame.draw.polygon(screen, RED, points)
+        # pygame.draw.polygon(screen, RED, points)
       
 def random_color():
     rand = random.randint(0,3)
@@ -253,7 +257,7 @@ class Ball:
         elif(self.dead_counter <= 80):
             dc = self.dead_counter
             #pygame.gfxdraw.aacircle(self.surface, x, y, self.rad-dc, self.color)
-            #pygame.gfxdraw.filled_circle(self.surface, x, y, self.rad-dc, self.color)\
+            #pygame.gfxdraw.filled_circle(self.surface, x, y, self.rad-dc, self.color)
             for ball in self.explosion_balls:
                 ball.draw()
       
@@ -268,7 +272,8 @@ def restart():
     del obstacles[:]
     del colorswitches[:]
     for i in range(20):
-        o_type = random.randint(0,1)
+        # o_type = random.randint(0,1)
+        o_type = 2
         if(o_type == 0):
             temp = Obstacle(screen, SCREEN_WIDTH/2, -600*i)
             obstacles.append(temp)
@@ -284,6 +289,12 @@ def restart():
             else:
                 col = YELLOW
             temp_colorswitch = ColorSwitch(screen, SCREEN_WIDTH/2, -600*i+300, col)
+        elif(o_type == 2):
+            temp = Obstacle(screen, SCREEN_WIDTH/2-100, -600*i, 200, 45, 1)
+            temp2 = Obstacle(screen, SCREEN_WIDTH/2+100, -600*i, 200, 45, -1)
+            obstacles.append(temp)
+            obstacles.append(temp2)
+            temp_colorswitch = ColorSwitch(screen, SCREEN_WIDTH/2, -600*i+300, TEAL)
             
         temp_star = Star(screen, SCREEN_WIDTH/2, -600*i)
         stars.append(temp_star)
@@ -331,7 +342,6 @@ title_obstacle2.thickness = 7
 
 
 def draw_menu():
-    
     screen.blit(menu_font.render("C    L    R", True, WHITE), (130, 40))
     screen.blit(menu_font.render("SWITCH", True, WHITE), (130, 100))
 
@@ -368,6 +378,9 @@ def draw_game_over():
     screen.blit(menu_font.render(str(score), True, WHITE), (SCREEN_WIDTH/2-10, 150))
     screen.blit(font.render("B E S T   S C O R E", True, WHITE), (SCREEN_WIDTH/2-100, 250))
     screen.blit(menu_font.render(str(highscore), True, WHITE), (SCREEN_WIDTH/2-10, 290))
+    # pygame.draw.
+    screen.blit(retry, (int(SCREEN_WIDTH/2-retry.get_height()/2), int(SCREEN_HEIGHT*7/12)))
+    
     
 while(handle_events()):
     clock.tick(80)
@@ -375,14 +388,12 @@ while(handle_events()):
     if(gamestate == MENU):
         draw_menu()
     elif(gamestate == GAMEPLAY):
-        
-        
         for obstacle in obstacles:
             obstacle.update()
         ball.update()
         for star in stars:
             star.update()
-        
+            
         for obstacle in obstacles:
             if(obstacle.y+obstacle.rad/2-cam.y >= 0 and obstacle.y-obstacle.rad/2-cam.y <= SCREEN_HEIGHT):
                 obstacle.draw()
