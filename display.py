@@ -11,6 +11,7 @@ clock = pygame.time.Clock()
 BLACK = (0,0,0)
 WHITE = (255,255,255)
 radius = 10
+obstacles = []
     
 def draw_pixel(x,y, color=True):
     if(color):
@@ -97,8 +98,15 @@ def draw_filled_circle(cX, cY, rad, color=True):
         
         
 def draw_arc(cX, cY, rad, sAngle, eAngle, col=True):
-    #sAngle = math.radians(sAngle)
-    #eAngle = math.radians(eAngle)
+    if(sAngle < 0):
+        sAngle+=360
+    if(eAngle < 0):
+        eAngle+=360
+
+    if(sAngle > 360):
+        sAngle-=360
+    if(eAngle > 360):
+        eAngle-=360
 
     #Standard Midpoint Circle algorithm
     p = int((5 - rad * 4) / 4)
@@ -121,52 +129,85 @@ def draw_circle_points(cX, cY, x, y, sAngle, eAngle, col=True):
     #draw the circle points as long as they lie in the range specified
     if (x < y):
         #draw point in range 0 to 45 degrees
-        if (90 - angle >= sAngle and 90 - angle <= eAngle):
+        if ((90 - angle >= sAngle or sAngle > eAngle) and 90 - angle <= eAngle):
             draw_pixel(cX - y, cY - x, col)
 
-            #draw point in range 45 to 90 degrees
-            if (angle >= sAngle and angle <= eAngle):
-                draw_pixel(cX - x, cY - y, col)
+        #draw point in range 45 to 90 degrees
+        if ((angle >= sAngle or sAngle > eAngle) and angle <= eAngle):
+            draw_pixel(cX - x, cY - y, col)
 
-            #draw point in range 90 to 135 degrees
-            if (180 - angle >= sAngle and 180 - angle <= eAngle):
-                draw_pixel(cX + x, cY - y, col)
+        #draw point in range 90 to 135 degrees
+        if (180 - angle >= sAngle and 180 - angle <= eAngle):
+            draw_pixel(cX + x, cY - y, col)
 
-            #draw point in range 135 to 180 degrees
-            if (angle + 90 >= sAngle and angle + 90 <= eAngle):
-                draw_pixel(cX + y, cY - x, col)
+        #draw point in range 135 to 180 degrees
+        if (angle + 90 >= sAngle and angle + 90 <= eAngle):
+            draw_pixel(cX + y, cY - x, col)
 
-            #draw point in range 180 to 225 degrees
-            if (270 - angle >= sAngle and 270 - angle <= eAngle):
-                draw_pixel(cX + y, cY + x, col)
+        #draw point in range 180 to 225 degrees
+        if (270 - angle >= sAngle and 270 - angle <= eAngle):
+            draw_pixel(cX + y, cY + x, col)
                 
-            #draw point in range 225 to 270 degrees
-            if (angle + 180 >= sAngle and angle + 180 <= eAngle):
-                draw_pixel(cX + x, cY + y, col)
+        #draw point in range 225 to 270 degrees
+        if (angle + 180 >= sAngle and angle + 180 <= eAngle):
+            draw_pixel(cX + x, cY + y, col)
 
-            #draw point in range 270 to 315 degrees
-            if (360 - angle >= sAngle and 360 - angle <= eAngle):
-                draw_pixel(cX - x, cY + y, col)
+        #draw point in range 270 to 315 degrees
+        if (360 - angle >= sAngle and (360 - angle <= eAngle or sAngle > eAngle)):
+            draw_pixel(cX - x, cY + y, col)
 
-            #draw point in range 315 to 360 degrees
-            if (angle + 270 >= sAngle and angle + 270 <= eAngle):
-                draw_pixel(cX - y, cY + x, col)
+        #draw point in range 315 to 360 degrees
+        if (angle + 270 >= sAngle and (angle + 270 <= eAngle or sAngle > eAngle) ):
+            draw_pixel(cX - y, cY + x, col)
     
 x = int(SCREEN_WIDTH*(1/4))
 y = int(SCREEN_HEIGHT/2)
 vel = 0
 radius = 3
-   
+cam_x, cam_y = 0,0
+
+def draw_letter(letter, x, y,col=True):
+    if(letter == "A"):
+        draw_pixel(x+1, y, col)
+        draw_pixel(x+2, y, col)
+        draw_pixel(x, y+1, col)
+        draw_pixel(x, y+2, col)
+        draw_pixel(x, y+3, col)
+        draw_pixel(x, y+4, col)
+        draw_pixel(x+3, y+1, col)
+        draw_pixel(x+3, y+2, col)
+        draw_pixel(x+3, y+3, col)
+        draw_pixel(x+3, y+4, col)
+        draw_pixel(x+1, y+2, col)
+        draw_pixel(x+2, y+2, col)
+        draw_pixel(x+3, y+2, col)
+    elif(letter == "B"):
+        draw_pixel(x,y,col)
+        draw_pixel(x+1,y,col)
+        draw_pixel(x+2,y,col)
+        draw_pixel(x,y+1,col)
+        draw_pixel(x+3,y+1,col)
+        draw_pixel(x,y+2,col)
+        draw_pixel(x+1,y+2,col)
+        draw_pixel(x+2,y+2,col)
+        draw_pixel(x,y+3,col)
+        draw_pixel(x+3,y+3,col)
+        draw_pixel(x,y+4,col)
+        draw_pixel(x+1,y+4,col)
+        draw_pixel(x+2,y+4,col)
+
 def ball_jump():
     global x,y,vel
     vel = 4
     
 def ball_draw():
-    draw_filled_circle(int(x), int(y), radius, False)
+    draw_filled_circle(int(x-cam_x), int(y), radius, False)
     
 def ball_update():
-    global x,y,vel
+    global x,y,vel,cam_x,cam_y
     x+=vel
+    if(cam_x <= x-SCREEN_WIDTH*0.4):
+        cam_x = x-SCREEN_WIDTH*0.4
     vel-=0.5
     
 def handle_events():
@@ -185,15 +226,119 @@ def handle_events():
             return False
     return True
 
+angle = 0
+
+def draw_star(x,y,col=True):
+    draw_pixel(x,y,col)
+    draw_pixel(x+1,y+1,col)
+    draw_pixel(x-1,y-1,col)
+    draw_pixel(x+1,y,col)
+    draw_pixel(x-1,y,col)
+    draw_pixel(x+1,y-1,col)
+    draw_pixel(x-1,y+1,col)
+    draw_pixel(x,y+1,col)
+    draw_pixel(x,y-1,col)
+    
+    draw_pixel(x+2,y,col)
+    draw_pixel(x+2,y+1,col)
+    draw_pixel(x+2,y-1,col)
+    draw_pixel(x+3,y,col)
+    draw_pixel(x+4,y,col)
+    draw_pixel(x+5,y,col)
+    draw_pixel(x+6,y,col)
+    
+    draw_pixel(x+4,y-1,col)
+    draw_pixel(x+4,y+1,col)
+    draw_pixel(x+2,y+2,col)
+    draw_pixel(x+2,y-2,col)
+    draw_pixel(x+3,y-2,col)
+    draw_pixel(x+3,y+2,col)
+    draw_pixel(x+5,y-1,col)
+    draw_pixel(x+5,y+1,col)
+    
+    draw_pixel(x+1,y-2,col)
+    draw_pixel(x+1,y-3,col)
+    draw_pixel(x+1,y-4,col)
+    draw_pixel(x+2,y-5,col)
+    draw_pixel(x+2,y-4,col)
+    draw_pixel(x+2,y-3,col)
+    draw_pixel(x,y-2,col)
+    draw_pixel(x,y-3,col)
+    draw_pixel(x-1,y-2,col)
+    
+    draw_pixel(x-6, y-4,col)
+    draw_pixel(x-6, y+4,col)
+    
+    draw_pixel(x+3,y-1,col)
+    draw_pixel(x+3,y+1,col)
+    draw_pixel(x-3,y+3,col)
+    draw_pixel(x-3,y-3,col)
+    
+    draw_pixel(x+1,y+2,col)
+    draw_pixel(x+1,y+3,col)
+    draw_pixel(x+1,y+4,col)
+    draw_pixel(x+2,y+5,col)
+    draw_pixel(x+2,y+4,col)
+    draw_pixel(x+2,y+3,col)
+    draw_pixel(x,y+2,col)
+    draw_pixel(x,y+3,col)
+    draw_pixel(x-1,y+2,col)
+    
+    draw_pixel(x-2,y,col)
+    
+    draw_pixel(x-2,y-1,col)
+    draw_pixel(x-3,y+1,col)
+    draw_pixel(x-3,y-1,col)
+    draw_pixel(x-4,y+2,col)
+    draw_pixel(x-4,y-2,col)
+    draw_pixel(x-3,y-2,col)
+    draw_pixel(x-2,y-2,col)
+    draw_pixel(x-4,y-3,col)
+    draw_pixel(x-5,y-3,col)
+    #draw_pixel(x-6,y-4,col)
+    
+    draw_pixel(x-2,y+1,col)
+    draw_pixel(x-3,y+2,col)
+    draw_pixel(x-2,y+2,col)
+    draw_pixel(x-4,y+3,col)
+    draw_pixel(x-5,y+3,col)
+    #draw_pixel(x-6,y+4,col)
+
+def spawn_obstacles():
+    for i in range(1, 20):
+        obstacles.append((i*SCREEN_WIDTH, SCREEN_HEIGHT/2))
+
+def draw_obstacle(x,y):
+    global angle
+    draw_circle(x-cam_x, y,radius+16, False)
+    draw_circle(x-cam_x, y,radius+22, False)
+    draw_star(x-cam_x, y, False)
+    i = 16
+    while(i <= 21):
+        i+=1
+        draw_arc(x-cam_x, y,radius+i,angle,angle+90, False)
+    
+spawn_obstacles()
+
 while(handle_events()):
     clock.tick(30)
     display.fill(BLACK)
     
-    #ball_update()
+    ball_update()
+    if(angle < 360):
+        angle+=2
+    else:
+        angle-=360
     
-    draw_arc(SCREEN_WIDTH/2, SCREEN_HEIGHT/2,radius, 0, 180, False)
     
-    #ball_draw()
+    for obstacle in obstacles:
+        if(obstacle[0]-cam_x <= 500):
+            draw_obstacle(obstacle[0],obstacle[1])
+    draw_letter('A',0,0,False)
+    draw_letter('B',5,0,False)
+    draw_letter('C',10,0,False)
+    
+    ball_draw()
 
     pygame.display.flip()
 
