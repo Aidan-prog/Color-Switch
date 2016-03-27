@@ -30,18 +30,17 @@ def draw_line(x0, y0, x1, y1, color=True):
     dErr = 0
     
     if(dX == 0):
-        for y in range(int(y0), int(y1)):
+        for y in range(int(y0), int(y1)+1):
             draw_pixel(x0,y, color)
         return
     elif(dY == 0):
-        for x in range(int(x0), int(x1)):
+        for x in range(int(x0), int(x1)+1):
             draw_pixel(x,y0, color)
         return
     else:
         dErr = dY/dX
         error = 0
         dErr = math.fabs(dY/dX)
-    print("ran")
     y = 0
     for x in range(int(x0), int(x1)):
         draw_pixel(x,y, color)
@@ -209,6 +208,10 @@ def ball_update():
     if(cam_x <= x-SCREEN_WIDTH*0.4):
         cam_x = x-SCREEN_WIDTH*0.4
     vel-=0.5
+    collision_detection()
+    
+def collision_detection():
+    pass
     
 def handle_events():
     global radius
@@ -228,6 +231,54 @@ def handle_events():
 
 angle = 0
 
+def draw_star_outline(x,y,col=True):
+    draw_pixel(x+4,y-1,col)
+    draw_pixel(x+4,y+1,col)
+    draw_pixel(x+5,y-1,col)
+    draw_pixel(x+5,y+1,col)
+    
+    draw_pixel(x+6,y,col)
+    
+    draw_pixel(x+3, y-2,col)
+    draw_pixel(x+3,y+2,col)
+    
+    draw_line(x+2,y-6,x+2,y-3,col)
+    draw_line(x+2,y+3,x+2,y+6,col)
+    draw_pixel(x+2,y-6,col)
+    draw_pixel(x+2,y+6,col)
+    
+    draw_pixel(x+1,y-6,col)
+    draw_pixel(x+1,y+6,col)
+    
+    draw_pixel(x,y-5,col)
+    draw_pixel(x,y+5,col)
+    
+    draw_pixel(x-1,y-4,col)
+    draw_pixel(x-1,y+4,col)
+    
+    draw_pixel(x-2,y-3,col)
+    draw_pixel(x-2,y+3,col)
+    
+    draw_pixel(x-3,y-4,col)
+    draw_pixel(x-3,y+4,col)
+    
+    draw_pixel(x-4,y-4,col)
+    draw_pixel(x-4,y+4,col)
+    draw_pixel(x-4,y,col)
+    
+    draw_pixel(x-5,y-4,col)
+    draw_pixel(x-5,y-1,col)
+    draw_pixel(x-5,y-2,col)
+    
+    draw_pixel(x-5,y+1,col)
+    draw_pixel(x-5,y+4,col)
+    draw_pixel(x-5,y+2,col)
+    
+    draw_pixel(x-6,y+3,col)
+    draw_pixel(x-6,y+4,col)
+    draw_pixel(x-6,y-3,col)
+    draw_pixel(x-6,y-4,col)
+
 def draw_star(x,y,col=True):
     draw_pixel(x,y,col)
     draw_pixel(x+1,y+1,col)
@@ -239,70 +290,33 @@ def draw_star(x,y,col=True):
     draw_pixel(x,y+1,col)
     draw_pixel(x,y-1,col)
     
-    draw_pixel(x+2,y,col)
-    draw_pixel(x+2,y+1,col)
-    draw_pixel(x+2,y-1,col)
-    draw_pixel(x+3,y,col)
-    draw_pixel(x+4,y,col)
-    draw_pixel(x+5,y,col)
+    for i in range(2,6):
+        draw_pixel(x+i,y,col)
+        draw_pixel(x+i,y-1,col)
+        draw_pixel(x+i,y+1,col)
     draw_pixel(x+6,y,col)
     
-    draw_pixel(x+4,y-1,col)
-    draw_pixel(x+4,y+1,col)
-    draw_pixel(x+2,y+2,col)
-    draw_pixel(x+2,y-2,col)
-    draw_pixel(x+3,y-2,col)
+    draw_pixel(x+3, y-2,col)
     draw_pixel(x+3,y+2,col)
-    draw_pixel(x+5,y-1,col)
-    draw_pixel(x+5,y+1,col)
     
-    draw_pixel(x+1,y-2,col)
-    draw_pixel(x+1,y-3,col)
-    draw_pixel(x+1,y-4,col)
-    draw_pixel(x+2,y-5,col)
-    draw_pixel(x+2,y-4,col)
-    draw_pixel(x+2,y-3,col)
-    draw_pixel(x,y-2,col)
-    draw_pixel(x,y-3,col)
-    draw_pixel(x-1,y-2,col)
+    draw_line(x+2,y-6,x+2,y+6,col)
+    draw_pixel(x+2,y-6,col)
+    draw_pixel(x+2,y+6,col)
     
-    draw_pixel(x-6, y-4,col)
-    draw_pixel(x-6, y+4,col)
-    
-    draw_pixel(x+3,y-1,col)
-    draw_pixel(x+3,y+1,col)
-    draw_pixel(x-3,y+3,col)
-    draw_pixel(x-3,y-3,col)
-    
-    draw_pixel(x+1,y+2,col)
-    draw_pixel(x+1,y+3,col)
-    draw_pixel(x+1,y+4,col)
-    draw_pixel(x+2,y+5,col)
-    draw_pixel(x+2,y+4,col)
-    draw_pixel(x+2,y+3,col)
-    draw_pixel(x,y+2,col)
-    draw_pixel(x,y+3,col)
-    draw_pixel(x-1,y+2,col)
-    
-    draw_pixel(x-2,y,col)
-    
-    draw_pixel(x-2,y-1,col)
-    draw_pixel(x-3,y+1,col)
-    draw_pixel(x-3,y-1,col)
-    draw_pixel(x-4,y+2,col)
-    draw_pixel(x-4,y-2,col)
-    draw_pixel(x-3,y-2,col)
-    draw_pixel(x-2,y-2,col)
-    draw_pixel(x-4,y-3,col)
-    draw_pixel(x-5,y-3,col)
-    #draw_pixel(x-6,y-4,col)
-    
-    draw_pixel(x-2,y+1,col)
-    draw_pixel(x-3,y+2,col)
-    draw_pixel(x-2,y+2,col)
-    draw_pixel(x-4,y+3,col)
-    draw_pixel(x-5,y+3,col)
-    #draw_pixel(x-6,y+4,col)
+    draw_line(x+1,y-6,x+1,y+6,col)
+    draw_line(x,y-5,x,y+5,col)
+    draw_line(x-1,y-4,x-1,y+4,col)
+    draw_line(x-2,y-3,x-2,y+3,col)
+    draw_line(x-3,y-4,x-3,y+4,col)
+    draw_line(x-4,y-4,x-4,y+4,col)
+    draw_line(x-5,y-4,x-5,y-1,col)
+    draw_line(x-5,y+1,x-5,y+4,col)
+    draw_pixel(x-5,y+1,col)
+    draw_pixel(x-5,y+4,col)
+    draw_pixel(x-6,y+3,col)
+    draw_pixel(x-6,y+4,col)
+    draw_pixel(x-6,y-3,col)
+    draw_pixel(x-6,y-4,col)
 
 def spawn_obstacles():
     for i in range(1, 20):
@@ -330,13 +344,9 @@ while(handle_events()):
     else:
         angle-=360
     
-    
     for obstacle in obstacles:
         if(obstacle[0]-cam_x <= 500):
             draw_obstacle(obstacle[0],obstacle[1])
-    draw_letter('A',0,0,False)
-    draw_letter('B',5,0,False)
-    draw_letter('C',10,0,False)
     
     ball_draw()
 
