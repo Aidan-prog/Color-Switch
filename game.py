@@ -261,7 +261,7 @@ class Ball:
             for ball in self.explosion_balls:
                 ball.draw()
       
-ball = Ball(screen)
+# ball = Ball(screen)
 color_switch = ColorSwitch(screen, SCREEN_WIDTH/2, 250)
 
 def restart(): 
@@ -273,7 +273,7 @@ def restart():
     del colorswitches[:]
     for i in range(20):
         # o_type = random.randint(0,1)
-        o_type = 2
+        o_type = 0
         if(o_type == 0):
             temp = Obstacle(screen, SCREEN_WIDTH/2, -600*i)
             obstacles.append(temp)
