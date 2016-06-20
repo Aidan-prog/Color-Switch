@@ -6,12 +6,9 @@ SCREEN_WIDTH, SCREEN_HEIGHT = 500,700
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Color Switch")
 path = "H:\\Documents\\Programming\\Python\\test2\\"
-#pygame.display.set_icon(pygame.image.load("H:\\Documents\\Programming\\Python\\test2\\color_switch.png"))
-# pygame.display.set_icon(pygame.image.load("color_switch.png"))
-pygame.display.set_icon(pygame.image.load(path+"color_switch.png"))
-retry = pygame.image.load(path+"color_switch_retry.png")
-retry = pygame.transform.flip(retry, True, False)
-#pygame.display.set_icon(pygame.image.load("C:\\Users\\Tupou\\Documents\\Programming\\Python\\Color Switch\\color_switch.png"))
+#pygame.display.set_icon(pygame.image.load(path+"color_switch.png"))
+#retry = pygame.image.load(path+"color_switch_retry.png")
+#retry = pygame.transform.flip(retry, True, False)
 
 PURPLE = (140, 19, 251)
 RED = (255, 0, 128)
@@ -378,8 +375,7 @@ def draw_game_over():
     screen.blit(menu_font.render(str(score), True, WHITE), (SCREEN_WIDTH/2-10, 150))
     screen.blit(font.render("B E S T   S C O R E", True, WHITE), (SCREEN_WIDTH/2-100, 250))
     screen.blit(menu_font.render(str(highscore), True, WHITE), (SCREEN_WIDTH/2-10, 290))
-    # pygame.draw.
-    screen.blit(retry, (int(SCREEN_WIDTH/2-retry.get_height()/2), int(SCREEN_HEIGHT*7/12)))
+    #screen.blit(retry, (int(SCREEN_WIDTH/2-retry.get_height()/2), int(SCREEN_HEIGHT*7/12)))
     
     
 while(handle_events()):
